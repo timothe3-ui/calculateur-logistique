@@ -22,6 +22,14 @@ export default function CalculateurLogistiqueSETAK() {
   const toNumber = (v: any) => (isNaN(Number(v)) ? 0 : Number(v));
 
   // =========================
+  // ARRONDI MPL AU SUPÉRIEUR
+  // 0.2 / 0.4 / 0.6 / 0.8
+  // =========================
+  const roundMPL = (value: number) => {
+    return Math.ceil(value * 5) / 5;
+  };
+
+  // =========================
   // EQ LOGIC STANDARD
   // =========================
   const calculEQ = (
@@ -81,7 +89,8 @@ export default function CalculateurLogistiqueSETAK() {
       mpl = mpl / 2;
     }
 
-    return mpl;
+    // Arrondi supérieur par pas de 0.2
+    return roundMPL(mpl);
   };
 
   // =========================
@@ -125,7 +134,8 @@ export default function CalculateurLogistiqueSETAK() {
   }, 0);
 
   return (
-    <div className="min-h-screen p-6 bg-cover bg-center bg-no-repeat"
+    <div
+      className="min-h-screen p-6 bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage:
           "linear-gradient(rgba(255,255,255,0.96), rgba(255,255,255,0.96))",
@@ -137,10 +147,12 @@ export default function CalculateurLogistiqueSETAK() {
         <div className="bg-white rounded-3xl shadow-lg p-8 border border-red-200">
           <div className="flex items-center gap-4 flex-wrap">
             <img src="/logosetak.jpg" alt="SETAK" className="h-14 w-auto" />
+
             <div>
               <h1 className="text-4xl font-bold text-red-700 mb-2">
                 Votre calculette
               </h1>
+
               <p className="text-slate-600 text-lg font-medium">
                 Transports SETAK
               </p>
@@ -152,10 +164,12 @@ export default function CalculateurLogistiqueSETAK() {
         <div className="bg-white rounded-3xl shadow-lg p-8 border border-red-200">
 
           <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+
             <div>
               <h2 className="text-3xl font-bold text-red-700">
                 Équivalence Palette
               </h2>
+
               <p className="text-slate-500 mt-1">
                 Formule : (Longueur × Largeur / 1.2)
               </p>
@@ -163,12 +177,16 @@ export default function CalculateurLogistiqueSETAK() {
 
             <div className="bg-red-700 text-white rounded-2xl px-6 py-4 text-center min-w-[180px]">
               <div className="text-sm uppercase">Total EQ</div>
-              <div className="text-3xl font-bold">{totalEQ}</div>
+
+              <div className="text-3xl font-bold">
+                {totalEQ}
+              </div>
             </div>
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-red-200">
             <table className="w-full">
+
               <thead>
                 <tr className="bg-red-50">
                   <th className="p-4">Description</th>
@@ -192,6 +210,7 @@ export default function CalculateurLogistiqueSETAK() {
 
                   return (
                     <tr key={index} className="border-t">
+
                       <td className="p-4">{palette.nom}</td>
 
                       <td className="p-4">
@@ -209,6 +228,7 @@ export default function CalculateurLogistiqueSETAK() {
                       </td>
 
                       <td className="p-4">{palette.longueur}</td>
+
                       <td className="p-4">{palette.largeur}</td>
 
                       <td className="p-4 font-semibold">{eq}</td>
@@ -216,6 +236,7 @@ export default function CalculateurLogistiqueSETAK() {
                   );
                 })}
               </tbody>
+
             </table>
           </div>
 
@@ -223,6 +244,7 @@ export default function CalculateurLogistiqueSETAK() {
           <div className="mt-8">
 
             <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
+
               <h3 className="text-2xl font-bold text-red-700">
                 Palettes Hors Standards
               </h3>
@@ -241,7 +263,9 @@ export default function CalculateurLogistiqueSETAK() {
             </div>
 
             <div className="overflow-x-auto border rounded-2xl">
+
               <table className="w-full">
+
                 <thead>
                   <tr className="bg-red-50">
                     <th className="p-4">Nombre</th>
@@ -261,6 +285,7 @@ export default function CalculateurLogistiqueSETAK() {
 
                     return (
                       <tr key={index} className="border-t">
+
                         <td className="p-4">
                           <input
                             type="number"
@@ -269,7 +294,10 @@ export default function CalculateurLogistiqueSETAK() {
                               setCustomRows((prev) =>
                                 prev.map((r, i) =>
                                   i === index
-                                    ? { ...r, quantite: toNumber(e.target.value) }
+                                    ? {
+                                        ...r,
+                                        quantite: toNumber(e.target.value),
+                                      }
                                     : r
                                 )
                               )
@@ -285,7 +313,10 @@ export default function CalculateurLogistiqueSETAK() {
                               setCustomRows((prev) =>
                                 prev.map((r, i) =>
                                   i === index
-                                    ? { ...r, longueur: e.target.value }
+                                    ? {
+                                        ...r,
+                                        longueur: e.target.value,
+                                      }
                                     : r
                                 )
                               )
@@ -301,7 +332,10 @@ export default function CalculateurLogistiqueSETAK() {
                               setCustomRows((prev) =>
                                 prev.map((r, i) =>
                                   i === index
-                                    ? { ...r, largeur: e.target.value }
+                                    ? {
+                                        ...r,
+                                        largeur: e.target.value,
+                                      }
                                     : r
                                 )
                               )
@@ -313,21 +347,22 @@ export default function CalculateurLogistiqueSETAK() {
                         <td className="p-4 font-semibold">
                           {eq}
                         </td>
+
                       </tr>
                     );
                   })}
                 </tbody>
+
               </table>
             </div>
-
           </div>
-
         </div>
 
         {/* MPL */}
         <div className="bg-white rounded-3xl shadow-lg p-8 border border-red-200">
 
           <div className="flex justify-between mb-6 flex-wrap gap-4">
+
             <div>
               <h2 className="text-3xl font-bold text-red-700">
                 Mètre de Plancher
@@ -339,13 +374,22 @@ export default function CalculateurLogistiqueSETAK() {
             </div>
 
             <div className="bg-red-700 text-white rounded-2xl px-6 py-4 min-w-[180px] text-center">
-              <div className="text-sm uppercase">Total MPL</div>
-              <div className="text-3xl font-bold">{totalMPL} ml</div>
+
+              <div className="text-sm uppercase">
+                Total MPL
+              </div>
+
+              <div className="text-3xl font-bold">
+                {totalMPL} ml
+              </div>
+
             </div>
           </div>
 
           <div className="overflow-x-auto border rounded-2xl">
+
             <table className="w-full">
+
               <thead>
                 <tr className="bg-red-50">
                   <th className="p-4">Longueur</th>
@@ -375,7 +419,9 @@ export default function CalculateurLogistiqueSETAK() {
                           onChange={(e) =>
                             setMplRows((prev) =>
                               prev.map((r, i) =>
-                                i === index ? { ...r, longueur: e.target.value } : r
+                                i === index
+                                  ? { ...r, longueur: e.target.value }
+                                  : r
                               )
                             )
                           }
@@ -389,7 +435,9 @@ export default function CalculateurLogistiqueSETAK() {
                           onChange={(e) =>
                             setMplRows((prev) =>
                               prev.map((r, i) =>
-                                i === index ? { ...r, largeur: e.target.value } : r
+                                i === index
+                                  ? { ...r, largeur: e.target.value }
+                                  : r
                               )
                             )
                           }
@@ -403,7 +451,9 @@ export default function CalculateurLogistiqueSETAK() {
                           onChange={(e) =>
                             setMplRows((prev) =>
                               prev.map((r, i) =>
-                                i === index ? { ...r, hauteur: e.target.value } : r
+                                i === index
+                                  ? { ...r, hauteur: e.target.value }
+                                  : r
                               )
                             )
                           }
@@ -418,7 +468,12 @@ export default function CalculateurLogistiqueSETAK() {
                           onChange={(e) =>
                             setMplRows((prev) =>
                               prev.map((r, i) =>
-                                i === index ? { ...r, quantite: toNumber(e.target.value) } : r
+                                i === index
+                                  ? {
+                                      ...r,
+                                      quantite: toNumber(e.target.value),
+                                    }
+                                  : r
                               )
                             )
                           }
@@ -433,23 +488,30 @@ export default function CalculateurLogistiqueSETAK() {
                           onChange={(e) =>
                             setMplRows((prev) =>
                               prev.map((r, i) =>
-                                i === index ? { ...r, gerbable: e.target.checked } : r
+                                i === index
+                                  ? {
+                                      ...r,
+                                      gerbable: e.target.checked,
+                                    }
+                                  : r
                               )
                             )
                           }
                         />
                       </td>
 
-                      <td className="p-4 font-semibold">{mpl} ml</td>
+                      <td className="p-4 font-semibold">
+                        {mpl} ml
+                      </td>
+
                     </tr>
                   );
                 })}
               </tbody>
+
             </table>
           </div>
-
         </div>
-
       </div>
     </div>
   );
