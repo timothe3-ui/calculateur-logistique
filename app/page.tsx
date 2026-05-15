@@ -35,15 +35,14 @@ export default function CalculateurLogistiqueSETAK() {
 
   // 🔥 PALETTE 120x120 (LOGIQUE CORRIGÉE)
   if (paletteNom === "Palette 120 x 120") {
-    if (quantite <= 0) return 0;
+  if (quantite <= 0) return 0;
 
-    // 1 palette = 1 EQ
-    if (quantite === 1) return 1;
+  // 1 palette = 1 EQ (arrondi sup inutile ici mais cohérent)
+  if (quantite === 1) return 1;
 
-    // >1 => uniquement formule
-    const valeur = (longueur * largeur) / 1.2;
-    return valeur * quantite;
-  }
+  const valeur = (longueur * largeur) / 1.2;
+  return Math.ceil(valeur * quantite);
+}
 
   // règle standard
   const valeur = (longueur * largeur) / 1.2;
