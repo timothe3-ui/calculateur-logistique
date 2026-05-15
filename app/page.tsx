@@ -9,42 +9,45 @@ export default function CalculateurLogistiqueSETAK() {
     { nom: "Palette 120 x 120", longueur: 1.2, largeur: 1.2 },
   ];
 
-  const [quantites, setQuantites] = React.useState<Record<number, string>>({});
+  const [quantites, setQuantites] = React.useState<Record<number, number>>({});
 
   const [customRows, setCustomRows] = React.useState([
-    {
-      longueur: "",
-      largeur: "",
-      quantite: 1,
-    },
+    { longueur: "", largeur: "", quantite: 1 },
   ]);
 
   const [mplRows, setMplRows] = React.useState([
-    {
-      longueur: "",
-      largeur: "",
-      hauteur: "",
-      quantite: 1,
-      gerbable: false,
-    },
+    { longueur: "", largeur: "", hauteur: "", quantite: 1, gerbable: false },
   ]);
 
+  const toNumber = (v: any) => (isNaN(Number(v)) ? 0 : Number(v));
+
+  // EQ LOGIC
   const calculEQ = (
     longueur: number,
     largeur: number,
-    quantite: number = 1
+    quantite: number,
+    paletteNom?: string
   ) => {
-    const valeur = ((longueur * largeur) / 2.4) / 0.5;
+    // règles spéciales
+    if (
+      paletteNom === "Palette Europe 80 x 120" ||
+      paletteNom === "Palette 120 x 120"
+    ) {
+      return quantite;
+    }
+
+    const valeur = (longueur * largeur) / 1.2;
     return valeur * quantite;
   };
 
+  // MPL (sans arrondi)
   const calculMPL = (
     longueur: number,
     largeur: number,
     quantite: number = 1,
     gerbable: boolean = false
   ) => {
-    let mpl = ((longueur * largeur) / 2.4) * quantite;
+    let mpl = (longueur * largeur) / 2.4 * quantite;
 
     if (gerbable) {
       mpl = mpl / 2;
@@ -54,18 +57,21 @@ export default function CalculateurLogistiqueSETAK() {
   };
 
   const totalEQStandard = palettes.reduce((acc, palette, index) => {
-    const qte = Number(quantites[index] || 0);
+    const qte = quantites[index] || 0;
 
-    return acc + calculEQ(palette.longueur, palette.largeur, qte);
+    return (
+      acc +
+      calculEQ(palette.longueur, palette.largeur, qte, palette.nom)
+    );
   }, 0);
 
   const totalEQCustom = customRows.reduce((acc, row) => {
     return (
       acc +
       calculEQ(
-        Number(row.longueur || 0),
-        Number(row.largeur || 0),
-        Number(row.quantite || 0)
+        toNumber(row.longueur),
+        toNumber(row.largeur),
+        toNumber(row.quantite)
       )
     );
   }, 0);
@@ -76,19 +82,19 @@ export default function CalculateurLogistiqueSETAK() {
     return (
       acc +
       calculMPL(
-        Number(row.longueur || 0),
-        Number(row.largeur || 0),
-        Number(row.quantite || 0),
+        toNumber(row.longueur),
+        toNumber(row.largeur),
+        toNumber(row.quantite),
         row.gerbable
       )
     );
   }, 0);
 
   return (
-    <div
-      className="min-h-screen p-6 bg-cover bg-center bg-no-repeat"
+    <div className="min-h-screen p-6 bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: "linear-gradient(rgba(255,255,255,0.96), rgba(255,255,255,0.96))"
+        backgroundImage:
+          "linear-gradient(rgba(255,255,255,0.96), rgba(255,255,255,0.96))",
       }}
     >
       <div className="max-w-7xl mx-auto space-y-8">
@@ -96,17 +102,11 @@ export default function CalculateurLogistiqueSETAK() {
         {/* HEADER */}
         <div className="bg-white rounded-3xl shadow-lg p-8 border border-red-200">
           <div className="flex items-center gap-4 flex-wrap">
-
-            <img
-  src="/logosetak.jpg"
-  alt="SETAK"
-  className="h-14 w-auto object-contain"
-/>
+            <img src="/logosetak.jpg" alt="SETAK" className="h-14 w-auto" />
             <div>
               <h1 className="text-4xl font-bold text-red-700 mb-2">
                 Votre calculette
               </h1>
-
               <p className="text-slate-600 text-lg font-medium">
                 Transports SETAK
               </p>
@@ -122,282 +122,163 @@ export default function CalculateurLogistiqueSETAK() {
               <h2 className="text-3xl font-bold text-red-700">
                 Équivalence Palette
               </h2>
-
               <p className="text-slate-500 mt-1">
-                Formule : (Longueur × Largeur / 2.4) / 0.5
+                Formule : (Longueur × Largeur / 2.4)
               </p>
             </div>
 
             <div className="bg-red-700 text-white rounded-2xl px-6 py-4 text-center min-w-[180px]">
-              <div className="text-sm uppercase tracking-wide opacity-80">
-                Total EQ
-              </div>
-
-              <div className="text-3xl font-bold">
-                {Math.ceil(totalEQ)}
-              </div>
+              <div className="text-sm uppercase">Total EQ</div>
+              <div className="text-3xl font-bold">{totalEQ}</div>
             </div>
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-red-200">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full">
               <thead>
-                <tr className="bg-red-50 text-slate-700">
+                <tr className="bg-red-50">
                   <th className="p-4">Description</th>
                   <th className="p-4">Nombre</th>
-                  <th className="p-4">Longueur (m)</th>
-                  <th className="p-4">Largeur (m)</th>
+                  <th className="p-4">Longueur</th>
+                  <th className="p-4">Largeur</th>
                   <th className="p-4">EQ</th>
                 </tr>
               </thead>
 
               <tbody>
                 {palettes.map((palette, index) => {
-                  const qte = Number(quantites[index] || 0);
+                  const qte = quantites[index] || 0;
 
-                  const resultat = calculEQ(
+                  const eq = calculEQ(
                     palette.longueur,
                     palette.largeur,
-                    qte
+                    qte,
+                    palette.nom
                   );
 
                   return (
-                    <tr key={index} className="border-t border-red-100">
-                      <td className="p-4 font-medium">{palette.nom}</td>
+                    <tr key={index} className="border-t">
+                      <td className="p-4">{palette.nom}</td>
 
                       <td className="p-4">
                         <input
                           type="number"
-                          min="0"
-                          value={quantites[index] || ""}
+                          value={qte || ""}
                           onChange={(e) =>
                             setQuantites({
                               ...quantites,
-                              [index]: e.target.value,
+                              [index]: toNumber(e.target.value),
                             })
                           }
-                          className="w-24 rounded-xl border border-red-300 px-3 py-2"
+                          className="w-24 border rounded-xl px-3 py-2"
                         />
                       </td>
 
                       <td className="p-4">{palette.longueur}</td>
-
                       <td className="p-4">{palette.largeur}</td>
 
-                      <td className="p-4 font-semibold text-slate-800">
-                        {Math.ceil(resultat)}
-                      </td>
+                      <td className="p-4 font-semibold">{eq}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
-
-          {/* HORS STANDARDS */}
-          <div className="mt-8">
-
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
-              <h3 className="text-2xl font-bold text-red-700">
-                Palettes Hors Standards
-              </h3>
-
-              <button
-                onClick={() =>
-                  setCustomRows([
-                    ...customRows,
-                    {
-                      longueur: "",
-                      largeur: "",
-                      quantite: 1,
-                    },
-                  ])
-                }
-                className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-xl transition"
-              >
-                Ajouter une ligne
-              </button>
-            </div>
-
-            <div className="overflow-x-auto rounded-2xl border border-red-200">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-red-50 text-slate-700">
-                    <th className="p-4">Quantité</th>
-                    <th className="p-4">Longueur (m)</th>
-                    <th className="p-4">Largeur (m)</th>
-                    <th className="p-4">EQ</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {customRows.map((row, index) => {
-                    const eq = calculEQ(
-                      Number(row.longueur || 0),
-                      Number(row.largeur || 0),
-                      Number(row.quantite || 0)
-                    );
-
-                    return (
-                      <tr key={index} className="border-t border-red-100">
-
-                        <td className="p-4">
-                          <input
-                            type="number"
-                            min="0"
-                            value={row.quantite}
-                            onChange={(e) => {
-                              const updated = [...customRows];
-                              updated[index].quantite = Number(e.target.value);
-                              setCustomRows(updated);
-                            }}
-                            className="w-24 rounded-xl border border-red-300 px-3 py-2"
-                          />
-                        </td>
-
-                        <td className="p-4">
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={row.longueur}
-                            onChange={(e) => {
-                              const updated = [...customRows];
-                              updated[index].longueur = e.target.value;
-                              setCustomRows(updated);
-                            }}
-                            className="w-32 rounded-xl border border-red-300 px-3 py-2"
-                          />
-                        </td>
-
-                        <td className="p-4">
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={row.largeur}
-                            onChange={(e) => {
-                              const updated = [...customRows];
-                              updated[index].largeur = e.target.value;
-                              setCustomRows(updated);
-                            }}
-                            className="w-32 rounded-xl border border-red-300 px-3 py-2"
-                          />
-                        </td>
-
-                        <td className="p-4 font-semibold text-slate-800">
-                          {Math.ceil(eq)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
 
         {/* MPL */}
         <div className="bg-white rounded-3xl shadow-lg p-8 border border-red-200">
 
-          <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-            <div>
-              <h2 className="text-3xl font-bold text-red-700">
-                Calcul du Mètre de Plancher
-              </h2>
+          <div className="flex justify-between mb-6 flex-wrap gap-4">
+            <h2 className="text-3xl font-bold text-red-700">
+              Mètre de Plancher
+            </h2>
 
-              <p className="text-slate-500 mt-1">
-                Basé sur une largeur de remorque de 2,40 m.
-              </p>
-            </div>
-
-            <div className="bg-red-700 text-white rounded-2xl px-6 py-4 text-center min-w-[180px]">
-              <div className="text-sm uppercase tracking-wide opacity-80">
-                Total MPL
-              </div>
-
-              <div className="text-3xl font-bold">
-                {Math.ceil(totalMPL)} ml
-              </div>
+            <div className="bg-red-700 text-white rounded-2xl px-6 py-4 min-w-[180px] text-center">
+              <div className="text-sm uppercase">Total MPL</div>
+              <div className="text-3xl font-bold">{totalMPL} ml</div>
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-red-200">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto border rounded-2xl">
+            <table className="w-full">
               <thead>
-                <tr className="bg-red-50 text-slate-700">
-                  <th className="p-4">Longueur (m)</th>
-                  <th className="p-4">Largeur (m)</th>
-                  <th className="p-4">Hauteur (m)</th>
+                <tr className="bg-red-50">
+                  <th className="p-4">Longueur</th>
+                  <th className="p-4">Largeur</th>
+                  <th className="p-4">Hauteur</th>
                   <th className="p-4">Quantité</th>
                   <th className="p-4">Gerbable</th>
-                  <th className="p-4">Résultat MPL</th>
+                  <th className="p-4">MPL</th>
                 </tr>
               </thead>
 
               <tbody>
                 {mplRows.map((row, index) => {
                   const mpl = calculMPL(
-                    Number(row.longueur || 0),
-                    Number(row.largeur || 0),
-                    Number(row.quantite || 0),
+                    toNumber(row.longueur),
+                    toNumber(row.largeur),
+                    toNumber(row.quantite),
                     row.gerbable
                   );
 
                   return (
-                    <tr key={index} className="border-t border-red-100">
+                    <tr key={index} className="border-t">
 
                       <td className="p-4">
                         <input
-                          type="number"
-                          step="0.01"
                           value={row.longueur}
-                          onChange={(e) => {
-                            const updated = [...mplRows];
-                            updated[index].longueur = e.target.value;
-                            setMplRows(updated);
-                          }}
-                          className="w-32 rounded-xl border border-red-300 px-3 py-2"
+                          onChange={(e) =>
+                            setMplRows((prev) =>
+                              prev.map((r, i) =>
+                                i === index ? { ...r, longueur: e.target.value } : r
+                              )
+                            )
+                          }
+                          className="border rounded-xl px-3 py-2 w-32"
                         />
                       </td>
 
                       <td className="p-4">
                         <input
-                          type="number"
-                          step="0.01"
                           value={row.largeur}
-                          onChange={(e) => {
-                            const updated = [...mplRows];
-                            updated[index].largeur = e.target.value;
-                            setMplRows(updated);
-                          }}
-                          className="w-32 rounded-xl border border-red-300 px-3 py-2"
+                          onChange={(e) =>
+                            setMplRows((prev) =>
+                              prev.map((r, i) =>
+                                i === index ? { ...r, largeur: e.target.value } : r
+                              )
+                            )
+                          }
+                          className="border rounded-xl px-3 py-2 w-32"
                         />
                       </td>
 
                       <td className="p-4">
                         <input
-                          type="number"
-                          step="0.01"
                           value={row.hauteur}
-                          onChange={(e) => {
-                            const updated = [...mplRows];
-                            updated[index].hauteur = e.target.value;
-                            setMplRows(updated);
-                          }}
-                          className="w-32 rounded-xl border border-red-300 px-3 py-2"
+                          onChange={(e) =>
+                            setMplRows((prev) =>
+                              prev.map((r, i) =>
+                                i === index ? { ...r, hauteur: e.target.value } : r
+                              )
+                            )
+                          }
+                          className="border rounded-xl px-3 py-2 w-32"
                         />
                       </td>
 
                       <td className="p-4">
                         <input
                           type="number"
-                          min="1"
                           value={row.quantite}
-                          onChange={(e) => {
-                            const updated = [...mplRows];
-                            updated[index].quantite = Number(e.target.value);
-                            setMplRows(updated);
-                          }}
-                          className="w-24 rounded-xl border border-red-300 px-3 py-2"
+                          onChange={(e) =>
+                            setMplRows((prev) =>
+                              prev.map((r, i) =>
+                                i === index ? { ...r, quantite: toNumber(e.target.value) } : r
+                              )
+                            )
+                          }
+                          className="border rounded-xl px-3 py-2 w-24"
                         />
                       </td>
 
@@ -405,18 +286,17 @@ export default function CalculateurLogistiqueSETAK() {
                         <input
                           type="checkbox"
                           checked={row.gerbable}
-                          onChange={(e) => {
-                            const updated = [...mplRows];
-                            updated[index].gerbable = e.target.checked;
-                            setMplRows(updated);
-                          }}
-                          className="h-5 w-5"
+                          onChange={(e) =>
+                            setMplRows((prev) =>
+                              prev.map((r, i) =>
+                                i === index ? { ...r, gerbable: e.target.checked } : r
+                              )
+                            )
+                          }
                         />
                       </td>
 
-                      <td className="p-4 font-semibold text-slate-800">
-                        {Math.ceil(mpl)} ml
-                      </td>
+                      <td className="p-4 font-semibold">{mpl} ml</td>
                     </tr>
                   );
                 })}
@@ -424,45 +304,9 @@ export default function CalculateurLogistiqueSETAK() {
             </table>
           </div>
 
-          <div className="mt-6 flex gap-4 flex-wrap">
-            <button
-              onClick={() =>
-                setMplRows([
-                  ...mplRows,
-                  {
-                    longueur: "",
-                    largeur: "",
-                    hauteur: "",
-                    quantite: 1,
-                    gerbable: false,
-                  },
-                ])
-              }
-              className="bg-red-700 hover:bg-red-800 text-white px-4 py-3 rounded-xl transition"
-            >
-              Ajouter une ligne
-            </button>
-
-            <button
-              onClick={() =>
-                setMplRows([
-                  {
-                    longueur: "",
-                    largeur: "",
-                    hauteur: "",
-                    quantite: 1,
-                    gerbable: false,
-                  },
-                ])
-              }
-              className="border border-red-300 px-4 py-3 rounded-xl hover:bg-red-50 transition"
-            >
-              Réinitialiser
-            </button>
-          </div>
         </div>
+
       </div>
     </div>
   );
 }
-
