@@ -199,9 +199,15 @@ export default function CalculateurLogistiqueSETAK() {
         <div className="bg-white rounded-3xl shadow-lg p-8 border border-red-200">
 
           <div className="flex justify-between mb-6 flex-wrap gap-4">
-            <h2 className="text-3xl font-bold text-red-700">
-              Mètre de Plancher
-            </h2>
+            <div>
+  <h2 className="text-3xl font-bold text-red-700">
+    Mètre de Plancher
+  </h2>
+
+  <p className="text-slate-500 mt-1">
+    (Unité en mètre)
+  </p>
+</div>
 
             <div className="bg-red-700 text-white rounded-2xl px-6 py-4 min-w-[180px] text-center">
               <div className="text-sm uppercase">Total MPL</div>
