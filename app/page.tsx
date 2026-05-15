@@ -28,29 +28,27 @@ export default function CalculateurLogistiqueSETAK() {
   quantite: number,
   paletteNom?: string
 ) => {
-  // Palette Europe : EQ = quantité
+  // règles spéciales
   if (paletteNom === "Palette Europe 80 x 120") {
     return quantite;
   }
 
-  // Palette 120x120 : cas spécial
+  // 🔥 PALETTE 120x120 (LOGIQUE CORRIGÉE)
   if (paletteNom === "Palette 120 x 120") {
     if (quantite <= 0) return 0;
 
-    // si 1 seule palette → forfait 1
+    // 1 palette = 1 EQ
     if (quantite === 1) return 1;
 
-    // si > 1 → uniquement formule (plus de forfait)
-    return (longueur * largeur / 1.2) * quantite;
+    // >1 => uniquement formule
+    const valeur = (longueur * largeur) / 1.2;
+    return valeur * quantite;
   }
 
   // règle standard
-  return (longueur * largeur / 1.2) * quantite;
+  const valeur = (longueur * largeur) / 1.2;
+  return valeur * quantite;
 };
-
-    const valeur = (longueur * largeur) / 1.2;
-    return valeur * quantite;
-  };
 
   // MPL (sans arrondi)
   const calculMPL = (
