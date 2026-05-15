@@ -28,21 +28,22 @@ export default function CalculateurLogistiqueSETAK() {
   quantite: number,
   paletteNom?: string
 ) => {
-  // règles spéciales
+  // Palette Europe : EQ = quantité
   if (paletteNom === "Palette Europe 80 x 120") {
     return quantite;
   }
 
-  // 🔥 PALETTE 120x120 (LOGIQUE CORRIGÉE)
+  // 🔥 Palette 120x120 : règle spéciale
   if (paletteNom === "Palette 120 x 120") {
-  if (quantite <= 0) return 0;
+    if (quantite <= 0) return 0;
 
-  // 1 palette = 1 EQ (arrondi sup inutile ici mais cohérent)
-  if (quantite === 1) return 1;
+    // 1 palette = 1 EQ
+    if (quantite === 1) return 1;
 
-  const valeur = (longueur * largeur) / 1.2;
-  return Math.ceil(valeur * quantite);
-}
+    // >1 : uniquement formule + arrondi supérieur
+    const valeur = (longueur * largeur) / 1.2;
+    return Math.ceil(valeur * quantite);
+  }
 
   // règle standard
   const valeur = (longueur * largeur) / 1.2;
