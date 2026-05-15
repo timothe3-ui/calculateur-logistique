@@ -96,21 +96,15 @@ export default function CalculateurLogistiqueSETAK() {
         {/* HEADER */}
         <div className="bg-white rounded-3xl shadow-lg p-8 border border-red-200">
           <div className="flex items-center gap-4 flex-wrap">
+
             <img
   src="/logosetak.jpg"
   alt="SETAK"
-  className="h-14 object-contain"
+  className="h-14 w-auto object-contain"
 />
-  className="h-16 object-contain"
-/>
-  className="h-16 object-contain"
-/>
-              className="h-16 object-contain"
-            />
-
             <div>
               <h1 className="text-4xl font-bold text-red-700 mb-2">
-                Calculateur Logistique
+                Votre calculette
               </h1>
 
               <p className="text-slate-600 text-lg font-medium">
