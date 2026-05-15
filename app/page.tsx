@@ -70,19 +70,19 @@ export default function CalculateurLogistiqueSETAK() {
   // MPL LOGIC
   // =========================
   const calculMPL = (
-    longueur: number,
-    largeur: number,
-    quantite: number = 1,
-    gerbable: boolean = false
-  ) => {
-    let mpl = (longueur * largeur) / 2.4 * quantite;
+  longueur: number,
+  largeur: number,
+  quantite: number = 1,
+  gerbable: boolean = false
+) => {
+  let mpl = (longueur * largeur) / 2.4 * quantite;
 
-    if (gerbable) {
-      mpl = mpl / 2;
-    }
+  if (gerbable) {
+    mpl = mpl / 2;
+  }
 
-    return mpl;
-  };
+  return roundMPL(mpl);
+};
 
   // =========================
   // TOTAL EQ
