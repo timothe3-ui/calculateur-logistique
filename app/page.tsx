@@ -23,18 +23,30 @@ export default function CalculateurLogistiqueSETAK() {
 
   // EQ LOGIC
   const calculEQ = (
-    longueur: number,
-    largeur: number,
-    quantite: number,
-    paletteNom?: string
-  ) => {
-    // règles spéciales
-    if (
-      paletteNom === "Palette Europe 80 x 120" ||
-      paletteNom === "Palette 120 x 120"
-    ) {
-      return quantite;
-    }
+  longueur: number,
+  largeur: number,
+  quantite: number,
+  paletteNom?: string
+) => {
+  // Palette Europe : EQ = quantité
+  if (paletteNom === "Palette Europe 80 x 120") {
+    return quantite;
+  }
+
+  // Palette 120x120 : cas spécial
+  if (paletteNom === "Palette 120 x 120") {
+    if (quantite <= 0) return 0;
+
+    // si 1 seule palette → forfait 1
+    if (quantite === 1) return 1;
+
+    // si > 1 → uniquement formule (plus de forfait)
+    return (longueur * largeur / 1.2) * quantite;
+  }
+
+  // règle standard
+  return (longueur * largeur / 1.2) * quantite;
+};
 
     const valeur = (longueur * largeur) / 1.2;
     return valeur * quantite;
