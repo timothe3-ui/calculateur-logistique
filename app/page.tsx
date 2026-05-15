@@ -21,36 +21,54 @@ export default function CalculateurLogistiqueSETAK() {
 
   const toNumber = (v: any) => (isNaN(Number(v)) ? 0 : Number(v));
 
-  // EQ LOGIC
+  // =========================
+  // EQ LOGIC STANDARD
+  // =========================
   const calculEQ = (
-  longueur: number,
-  largeur: number,
-  quantite: number,
-  paletteNom?: string
-) => {
-  // Palette Europe : EQ = quantité
-  if (paletteNom === "Palette Europe 80 x 120") {
-    return quantite;
-  }
+    longueur: number,
+    largeur: number,
+    quantite: number,
+    paletteNom?: string
+  ) => {
+    const FACTEUR_EQ = 1.2;
 
-  // 🔥 Palette 120x120 : règle spéciale
-  if (paletteNom === "Palette 120 x 120") {
-    if (quantite <= 0) return 0;
+    // Palette Europe
+    if (paletteNom === "Palette Europe 80 x 120") {
+      return quantite;
+    }
 
-    // 1 palette = 1 EQ
-    if (quantite === 1) return 1;
+    // Palette 120x120
+    if (paletteNom === "Palette 120 x 120") {
+      if (quantite <= 0) return 0;
 
-    // >1 : uniquement formule + arrondi supérieur
-    const valeur = (longueur * largeur) / 1.2;
+      if (quantite === 1) return 1;
+
+      const valeur = (longueur * largeur) / FACTEUR_EQ;
+      return Math.ceil(valeur * quantite);
+    }
+
+    // standard
+    const valeur = (longueur * largeur) / FACTEUR_EQ;
+    return valeur * quantite;
+  };
+
+  // =========================
+  // EQ HORS STANDARD
+  // =========================
+  const calculEQHorsStandard = (
+    longueur: number,
+    largeur: number,
+    quantite: number
+  ) => {
+    const FACTEUR_EQ = 1.2;
+    const valeur = (longueur * largeur) / FACTEUR_EQ;
+
     return Math.ceil(valeur * quantite);
-  }
+  };
 
-  // règle standard
-  const valeur = (longueur * largeur) / 1.2;
-  return valeur * quantite;
-};
-
-  // MPL (sans arrondi)
+  // =========================
+  // MPL LOGIC
+  // =========================
   const calculMPL = (
     longueur: number,
     largeur: number,
@@ -66,6 +84,9 @@ export default function CalculateurLogistiqueSETAK() {
     return mpl;
   };
 
+  // =========================
+  // TOTAL EQ
+  // =========================
   const totalEQStandard = palettes.reduce((acc, palette, index) => {
     const qte = quantites[index] || 0;
 
@@ -78,7 +99,7 @@ export default function CalculateurLogistiqueSETAK() {
   const totalEQCustom = customRows.reduce((acc, row) => {
     return (
       acc +
-      calculEQ(
+      calculEQHorsStandard(
         toNumber(row.longueur),
         toNumber(row.largeur),
         toNumber(row.quantite)
@@ -88,6 +109,9 @@ export default function CalculateurLogistiqueSETAK() {
 
   const totalEQ = totalEQStandard + totalEQCustom;
 
+  // =========================
+  // TOTAL MPL
+  // =========================
   const totalMPL = mplRows.reduce((acc, row) => {
     return (
       acc +
@@ -133,7 +157,7 @@ export default function CalculateurLogistiqueSETAK() {
                 Équivalence Palette
               </h2>
               <p className="text-slate-500 mt-1">
-                Formule : (Longueur × Largeur / 2.4)
+                Formule : (Longueur × Largeur / 1.2)
               </p>
             </div>
 
@@ -194,6 +218,110 @@ export default function CalculateurLogistiqueSETAK() {
               </tbody>
             </table>
           </div>
+
+          {/* HORS STANDARD */}
+          <div className="mt-8">
+
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
+              <h3 className="text-2xl font-bold text-red-700">
+                Palettes Hors Standards
+              </h3>
+
+              <button
+                onClick={() =>
+                  setCustomRows([
+                    ...customRows,
+                    { longueur: "", largeur: "", quantite: 1 },
+                  ])
+                }
+                className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-xl"
+              >
+                Ajouter une ligne
+              </button>
+            </div>
+
+            <div className="overflow-x-auto border rounded-2xl">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-red-50">
+                    <th className="p-4">Nombre</th>
+                    <th className="p-4">Longueur</th>
+                    <th className="p-4">Largeur</th>
+                    <th className="p-4">EQ</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {customRows.map((row, index) => {
+                    const eq = calculEQHorsStandard(
+                      toNumber(row.longueur),
+                      toNumber(row.largeur),
+                      toNumber(row.quantite)
+                    );
+
+                    return (
+                      <tr key={index} className="border-t">
+                        <td className="p-4">
+                          <input
+                            type="number"
+                            value={row.quantite}
+                            onChange={(e) =>
+                              setCustomRows((prev) =>
+                                prev.map((r, i) =>
+                                  i === index
+                                    ? { ...r, quantite: toNumber(e.target.value) }
+                                    : r
+                                )
+                              )
+                            }
+                            className="w-24 border rounded-xl px-3 py-2"
+                          />
+                        </td>
+
+                        <td className="p-4">
+                          <input
+                            value={row.longueur}
+                            onChange={(e) =>
+                              setCustomRows((prev) =>
+                                prev.map((r, i) =>
+                                  i === index
+                                    ? { ...r, longueur: e.target.value }
+                                    : r
+                                )
+                              )
+                            }
+                            className="w-32 border rounded-xl px-3 py-2"
+                          />
+                        </td>
+
+                        <td className="p-4">
+                          <input
+                            value={row.largeur}
+                            onChange={(e) =>
+                              setCustomRows((prev) =>
+                                prev.map((r, i) =>
+                                  i === index
+                                    ? { ...r, largeur: e.target.value }
+                                    : r
+                                )
+                              )
+                            }
+                            className="w-32 border rounded-xl px-3 py-2"
+                          />
+                        </td>
+
+                        <td className="p-4 font-semibold">
+                          {eq}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
         </div>
 
         {/* MPL */}
@@ -201,14 +329,14 @@ export default function CalculateurLogistiqueSETAK() {
 
           <div className="flex justify-between mb-6 flex-wrap gap-4">
             <div>
-  <h2 className="text-3xl font-bold text-red-700">
-    Mètre de Plancher
-  </h2>
+              <h2 className="text-3xl font-bold text-red-700">
+                Mètre de Plancher
+              </h2>
 
-  <p className="text-slate-500 mt-1">
-    (Unité en mètre)
-  </p>
-</div>
+              <p className="text-slate-500 mt-1">
+                (Unité en mètre)
+              </p>
+            </div>
 
             <div className="bg-red-700 text-white rounded-2xl px-6 py-4 min-w-[180px] text-center">
               <div className="text-sm uppercase">Total MPL</div>
